@@ -6,7 +6,7 @@ using System.Reflection;
 namespace BaseSolution.Infrastructure.Implements.Services
 {
     public class LocalizationService : ILocalizationService
-    {
+    {   
         private readonly IStringLocalizer _stringLocalizer;
 
         public LocalizedString this[string name] => _stringLocalizer[name];

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BaseSolution.Application\BaseSolution.Application.csproj" />
     <ProjectReference Include="..\BaseSolution.Infrastructure\BaseSolution.Infrastructure.csproj" />
   </ItemGroup>
 
