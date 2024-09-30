@@ -54,6 +54,19 @@ namespace BaseSolution.Infrastructure.Extensions
                 options.UseSqlServer(configuration.GetConnectionString("DbConnection"));
             });
 
+            services.AddDbContextPool<OrderReadOnlyDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("DbConnection"));
+            });
+
+            services.AddDbContextPool<OrderReadWriteDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("DbConnection"));
+            });
+
+            services.AddTransient<IOrderReadOnlyRepository, OrderReadOnlyRepository>();
+            services.AddTransient<IOrderReadWriteRepository, OrderReadWriteRepository>();
+
             services.AddTransient<ILocalizationService, LocalizationService>();
 
             services.AddTransient<IProductReadOnlyRepository, ProductReadOnlyRepository>();
