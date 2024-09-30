@@ -62,11 +62,11 @@ namespace BaseSolution.API.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateCategory( CategoryUpdateRequest request, CancellationToken cancellationToken)
         {
-            CategoryUpdateViewModel vm = new( _categoryReadWriteRepository, _categoryReadOnlyRepository, _mapper, _localizationService );
+            CategoryUpdateViewModel vm = new(_categoryReadWriteRepository, _categoryReadOnlyRepository, _mapper, _localizationService);
 
             await vm.HandleAsync(request, cancellationToken);
 
-            return Ok(vm);
+            return NoContent();
         }
 
         [HttpDelete("{id:int}")]
@@ -76,7 +76,7 @@ namespace BaseSolution.API.Controllers
 
             await vm.HandleAsync(request, cancellationToken);
 
-            return Ok(vm);
+            return NoContent();
         }
     }
 }

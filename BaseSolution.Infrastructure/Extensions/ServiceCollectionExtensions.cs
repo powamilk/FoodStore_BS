@@ -40,10 +40,28 @@ namespace BaseSolution.Infrastructure.Extensions
                 options.UseSqlServer(configuration.GetConnectionString("DbConnection"));
             });
 
+            services.AddDbContextPool<ProductReadWriteDbContext>(options =>
+            {
+                var dbConnect = configuration.GetConnectionString("DbConnection");
+                // Configure your DbContext options here
+                options.UseSqlServer(configuration.GetConnectionString("DbConnection"));
+            });
+
+            services.AddDbContextPool<ProductReadOnlyDbContext>(options =>
+            {
+                var dbConnect = configuration.GetConnectionString("DbConnection");
+                // Configure your DbContext options here
+                options.UseSqlServer(configuration.GetConnectionString("DbConnection"));
+            });
+
             services.AddTransient<ILocalizationService, LocalizationService>();
+
+            services.AddTransient<IProductReadOnlyRepository, ProductReadOnlyRepository>();
+            services.AddTransient<IProductReadWriteRepository, ProductReadWriteRepository>();
 
             services.AddTransient<ICategoryReadOnlyRepository, CategoryReadOnlyRepository>();
             services.AddTransient<ICategoryReadWriteRepository, CategoryReadWriteRepository>();
+
 
             return services;
         }
