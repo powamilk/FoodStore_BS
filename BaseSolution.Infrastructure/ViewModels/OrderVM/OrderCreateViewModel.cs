@@ -20,7 +20,7 @@ namespace BaseSolution.Infrastructure.ViewModels.OrderVM
         private readonly IOrderReadWriteRepository _orderReadWriteRepository;
         private readonly ILocalizationService _localizationService;
         private readonly IMapper _mapper;
-
+        public int Data { get; private set; }
         public OrderCreateViewModel(IOrderReadWriteRepository orderReadWriteRepository, ILocalizationService localizationService, IMapper mapper)
         {
             _orderReadWriteRepository = orderReadWriteRepository;

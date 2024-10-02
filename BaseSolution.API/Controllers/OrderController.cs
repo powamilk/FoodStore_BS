@@ -6,6 +6,7 @@ using BaseSolution.Application.Interfaces.Services;
 using BaseSolution.Infrastructure.ViewModels.OrderVM;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
+using BaseSolution.Infrastructure.Implements.Repositories.ReadOnly;
 
 namespace BaseSolution.API.Controllers
 {
@@ -21,6 +22,7 @@ namespace BaseSolution.API.Controllers
         private readonly OrderDeleteViewModel _orderDeleteViewModel;
         private readonly OrderListWithPaginationViewModel _orderListWithPaginationViewModel;
         private readonly OrderViewModel _orderViewModel;
+        private readonly IOrderReadOnlyRepository _orderReadOnlyRepository; // Add this to fetch order details after creation
 
         public OrderController(
             IValidator<CreateOrderRequest> createOrderValidator,
@@ -30,7 +32,9 @@ namespace BaseSolution.API.Controllers
             OrderUpdateViewModel orderUpdateViewModel,
             OrderDeleteViewModel orderDeleteViewModel,
             OrderListWithPaginationViewModel orderListWithPaginationViewModel,
-            OrderViewModel orderViewModel)
+            OrderViewModel orderViewModel,
+            IOrderReadOnlyRepository orderReadOnlyRepository // Inject IOrderReadOnlyRepository
+        )
         {
             _createOrderValidator = createOrderValidator;
             _updateOrderValidator = updateOrderValidator;
@@ -40,6 +44,7 @@ namespace BaseSolution.API.Controllers
             _orderDeleteViewModel = orderDeleteViewModel;
             _orderListWithPaginationViewModel = orderListWithPaginationViewModel;
             _orderViewModel = orderViewModel;
+            _orderReadOnlyRepository = orderReadOnlyRepository; // Assign IOrderReadOnlyRepository
         }
 
         [HttpGet]
@@ -86,8 +91,14 @@ namespace BaseSolution.API.Controllers
             if (!_orderCreateViewModel.Success)
                 return BadRequest(_orderCreateViewModel.ErrorItems);
 
-            return CreatedAtAction(nameof(GetOrderById), new { id = _orderCreateViewModel.Data }, _orderCreateViewModel.Data);
+            var orderDetails = await _orderReadOnlyRepository.GetOrderByIdAsync(_orderCreateViewModel.Data, cancellationToken);
+            if (orderDetails == null || !orderDetails.Success)
+            {
+                return StatusCode(500, new { message = "Failed to retrieve order details" });
+            }
+            return CreatedAtAction(nameof(GetOrderById), new { id = _orderCreateViewModel.Data }, orderDetails.Data);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderRequest request)
@@ -114,8 +125,9 @@ namespace BaseSolution.API.Controllers
                 });
             }
 
-            return Ok(new { success = true, message = "Order updated successfully", data = _orderUpdateViewModel.Data });
+            return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
@@ -138,8 +150,8 @@ namespace BaseSolution.API.Controllers
                     error_items = _orderDeleteViewModel.ErrorItems
                 });
             }
-
-            return Ok(new { success = true, message = "Order deleted successfully" });
+            return NoContent();
         }
+
     }
 }
