@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BaseSolution.Infrastructure.ViewModels.OrderVM
 {
@@ -42,9 +41,10 @@ namespace BaseSolution.Infrastructure.ViewModels.OrderVM
                 }
                 else
                 {
+
                     Success = false;
                     ErrorItems = updateResult.Errors;
-                    Message = updateResult.Message;
+                    Message = updateResult.Message ?? _localizationService["Unable to update the order."];
                 }
             }
             catch (Exception ex)
@@ -54,9 +54,9 @@ namespace BaseSolution.Infrastructure.ViewModels.OrderVM
                 {
                     new ErrorItem
                     {
-                        Error = _localizationService["Error occurred while updating the order"],
+                        Error = _localizationService["An unexpected error occurred while updating the order."],
                         FieldName = LocalizationString.Common.FailedToUpdate + "Order",
-                        Code = ex.Message
+                        Code = ex.Message 
                     }
                 };
             }

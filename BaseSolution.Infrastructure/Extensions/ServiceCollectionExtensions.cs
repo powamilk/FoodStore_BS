@@ -1,13 +1,21 @@
-﻿using BaseSolution.Application.Interfaces.Repositories.ReadOnly;
+﻿using BaseSolution.Application.DataTransferObjects.Category.Request;
+using BaseSolution.Application.DataTransferObjects.Example.Request;
+using BaseSolution.Application.DataTransferObjects.Order.OrderRequest;
+using BaseSolution.Application.Interfaces.Repositories.ReadOnly;
 using BaseSolution.Application.Interfaces.Repositories.ReadWrite;
 using BaseSolution.Application.Interfaces.Services;
 using BaseSolution.Infrastructure.Database.AppDbContext;
+using BaseSolution.Infrastructure.Extensions.Validation.Category;
+using BaseSolution.Infrastructure.Extensions.Validation.Order;
 using BaseSolution.Infrastructure.Implements.Repositories.ReadOnly;
 using BaseSolution.Infrastructure.Implements.Repositories.ReadWrite;
 using BaseSolution.Infrastructure.Implements.Services;
+using BaseSolution.Infrastructure.ViewModels.OrderVM;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace BaseSolution.Infrastructure.Extensions
 {
@@ -75,6 +83,18 @@ namespace BaseSolution.Infrastructure.Extensions
             services.AddTransient<ICategoryReadOnlyRepository, CategoryReadOnlyRepository>();
             services.AddTransient<ICategoryReadWriteRepository, CategoryReadWriteRepository>();
 
+            services.AddTransient<OrderCreateViewModel>();
+            services.AddTransient<OrderUpdateViewModel>();
+            services.AddTransient<OrderDeleteViewModel>();
+            services.AddTransient<OrderListWithPaginationViewModel>();
+            services.AddTransient<OrderViewModel>();
+
+            services.AddTransient<IValidator<CategoryCreateRequest>, CategoryCreateRequestValidator>();
+            services.AddTransient<IValidator<CategoryUpdateRequest>, CategoryUpdateRequestValidator>();
+            services.AddTransient<IValidator<CategoryDeleteRequest>, CategoryDeleteRequestValidator>();
+            services.AddTransient<IValidator<CreateOrderRequest>, CreateOrderRequestValidator>();
+            services.AddTransient<IValidator<UpdateOrderRequest>, UpdateOrderRequestValidator>();
+            services.AddTransient<IValidator<DeleteOrderRequest>, DeleteOrderRequestValidator>();
 
             return services;
         }

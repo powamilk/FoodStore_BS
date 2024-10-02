@@ -1,14 +1,11 @@
-﻿using BaseSolution.Application.DataTransferObjects.Example.Request;
-using Microsoft.AspNetCore.Mvc;
-using BaseSolution.Application.Interfaces.Services;
-using AutoMapper;
+﻿using AutoMapper;
+using BaseSolution.Application.DataTransferObjects.Example.Request;
 using BaseSolution.Application.Interfaces.Repositories.ReadOnly;
 using BaseSolution.Application.Interfaces.Repositories.ReadWrite;
-using BaseSolution.Infrastructure.Implements.Repositories.ReadWrite;
-using BaseSolution.Infrastructure.Implements.Repositories.ReadOnly;
-using BaseSolution.Infrastructure.ViewModels.Example;
-using Azure.Core;
+using BaseSolution.Application.Interfaces.Services;
 using BaseSolution.Infrastructure.ViewModels.Categories;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSolution.API.Controllers
 {
@@ -16,17 +13,30 @@ namespace BaseSolution.API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        public readonly ICategoryReadOnlyRepository _categoryReadOnlyRepository;
-        public readonly ICategoryReadWriteRepository _categoryReadWriteRepository;
+        private readonly ICategoryReadOnlyRepository _categoryReadOnlyRepository;
+        private readonly ICategoryReadWriteRepository _categoryReadWriteRepository;
         private readonly ILocalizationService _localizationService;
         private readonly IMapper _mapper;
+        private readonly IValidator<CategoryCreateRequest> _createCategoryValidator;
+        private readonly IValidator<CategoryUpdateRequest> _updateCategoryValidator;
+        private readonly IValidator<CategoryDeleteRequest> _deleteCategoryValidator;
 
-        public CategoryController(ICategoryReadOnlyRepository categoryReadOnlyRepository, ICategoryReadWriteRepository categoryeReadWriteRepository, ILocalizationService localizationService, IMapper mapper)
+        public CategoryController(
+            ICategoryReadOnlyRepository categoryReadOnlyRepository,
+            ICategoryReadWriteRepository categoryReadWriteRepository,
+            ILocalizationService localizationService,
+            IMapper mapper,
+            IValidator<CategoryCreateRequest> createCategoryValidator,
+            IValidator<CategoryUpdateRequest> updateCategoryValidator,
+            IValidator<CategoryDeleteRequest> deleteCategoryValidator)
         {
             _categoryReadOnlyRepository = categoryReadOnlyRepository;
-            _categoryReadWriteRepository = categoryeReadWriteRepository;
+            _categoryReadWriteRepository = categoryReadWriteRepository;
             _localizationService = localizationService;
             _mapper = mapper;
+            _createCategoryValidator = createCategoryValidator;
+            _updateCategoryValidator = updateCategoryValidator;
+            _deleteCategoryValidator = deleteCategoryValidator;
         }
 
         [HttpGet]
@@ -39,44 +49,116 @@ namespace BaseSolution.API.Controllers
             return Ok(vm);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetCategoryById(int id, CancellationToken cancellationToken)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById(int id)
         {
-            CategoryViewModel vm = new(_categoryReadOnlyRepository, _localizationService);
+            var viewModel = new CategoryViewModel(_categoryReadOnlyRepository, _localizationService);
+            await viewModel.HandleAsync(id, CancellationToken.None);
 
-            await vm.HandleAsync(id, cancellationToken);
+            if (!viewModel.Success || viewModel.Data == null)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Category not found",
+                    error_items = viewModel.ErrorItems
+                });
+            }
 
-            return Ok(vm);
+            return Ok(new
+            {
+                success = true,
+                data = viewModel.Data
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCategory(CategoryCreateRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateRequest request, CancellationToken cancellationToken)
         {
-            CategoryCreateViewModel vm = new (_categoryReadWriteRepository, _localizationService, _mapper , _categoryReadOnlyRepository);
+            var validationResult = await _createCategoryValidator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
+            var vm = new CategoryCreateViewModel(_categoryReadWriteRepository, _localizationService, _mapper, _categoryReadOnlyRepository);
             await vm.HandleAsync(request, cancellationToken);
+
+            if (!vm.Success)
+            {
+                return BadRequest(vm.ErrorItems);
+            }
 
             return Ok(vm);
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateCategory( CategoryUpdateRequest request, CancellationToken cancellationToken)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateRequest updateRequest, CancellationToken cancellationToken)
         {
-            CategoryUpdateViewModel vm = new(_categoryReadWriteRepository, _categoryReadOnlyRepository, _mapper, _localizationService);
+            var validationResult = await _updateCategoryValidator.ValidateAsync(updateRequest, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
-            await vm.HandleAsync(request, cancellationToken);
+            if (id != updateRequest.Id)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Category ID mismatch"
+                });
+            }
 
-            return NoContent();
+            var viewModel = new CategoryUpdateViewModel(_categoryReadWriteRepository, _categoryReadOnlyRepository, _mapper, _localizationService);
+            await viewModel.HandleAsync(updateRequest, cancellationToken);
+
+            if (!viewModel.Success)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = viewModel.Message,
+                    error_items = viewModel.ErrorItems
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = "Category updated successfully",
+                data = viewModel.Data
+            });
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteCategory(CategoryDeleteRequest request, CancellationToken cancellationToken)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
         {
-            CategoryDeleteViewModel vm = new ( _categoryReadWriteRepository , _localizationService);
+            var deleteRequest = new CategoryDeleteRequest { Id = id };
+            var validationResult = await _deleteCategoryValidator.ValidateAsync(deleteRequest, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
-            await vm.HandleAsync(request, cancellationToken);
+            var viewModel = new CategoryDeleteViewModel(_categoryReadWriteRepository, _localizationService);
+            await viewModel.HandleAsync(deleteRequest, cancellationToken);
 
-            return NoContent();
+            if (!viewModel.Success)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Category not found",
+                    error_items = viewModel.ErrorItems
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = "Category deleted successfully"
+            });
         }
     }
 }

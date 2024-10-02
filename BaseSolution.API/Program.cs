@@ -1,9 +1,16 @@
 using BaseSolution.Application.Interfaces.Repositories.ReadOnly;
 using BaseSolution.Infrastructure.Extensions;
 using BaseSolution.Infrastructure.ViewModels.Categories;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.MaxDepth = 64;
+    });
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -18,6 +25,7 @@ builder.Services.AddLocalization();
 builder.Services.AddApplication();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
