@@ -1,12 +1,14 @@
 ﻿using BaseSolution.Application.DataTransferObjects.Category.Request;
 using BaseSolution.Application.DataTransferObjects.Example.Request;
 using BaseSolution.Application.DataTransferObjects.Order.OrderRequest;
+using BaseSolution.Application.DataTransferObjects.Product.Request;
 using BaseSolution.Application.Interfaces.Repositories.ReadOnly;
 using BaseSolution.Application.Interfaces.Repositories.ReadWrite;
 using BaseSolution.Application.Interfaces.Services;
 using BaseSolution.Infrastructure.Database.AppDbContext;
 using BaseSolution.Infrastructure.Extensions.Validation.Category;
 using BaseSolution.Infrastructure.Extensions.Validation.Order;
+using BaseSolution.Infrastructure.Extensions.Validation.Product;
 using BaseSolution.Infrastructure.Implements.Repositories.ReadOnly;
 using BaseSolution.Infrastructure.Implements.Repositories.ReadWrite;
 using BaseSolution.Infrastructure.Implements.Services;
@@ -95,6 +97,9 @@ namespace BaseSolution.Infrastructure.Extensions
             services.AddTransient<IValidator<CreateOrderRequest>, CreateOrderRequestValidator>();
             services.AddTransient<IValidator<UpdateOrderRequest>, UpdateOrderRequestValidator>();
             services.AddTransient<IValidator<DeleteOrderRequest>, DeleteOrderRequestValidator>();
+            services.AddTransient<IValidator<ProductCreateRequest>, ProductCreateRequestValidator>();
+            services.AddTransient<IValidator<ProductUpdateRequest>, ProductUpdateRequestValidator>();
+            services.AddTransient<IValidator<ProductDeleteRequest>, ProductDeleteRequestValidator>();
 
             return services;
         }

@@ -92,20 +92,22 @@ namespace BaseSolution.Infrastructure.Implements.Repositories.ReadWrite
                 _dbContext.Orders.Remove(order);
                 await _dbContext.SaveChangesAsync(cancellationToken);
 
-                return RequestResult<int>.Succeed(1);
+                return RequestResult<int>.Succeed(orderId);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return RequestResult<int>.Fail(_localizationService["Unable to delete order"], new[]
+                return RequestResult<int>.Fail("Failed to delete order", new[]
                 {
                     new ErrorItem
                     {
-                        Error = e.Message,
-                        FieldName = LocalizationString.Common.FailedToDelete + "order"
+                        FieldName = "Order",
+                        Error = ex.Message,
+                        Code = ex.InnerException?.Message
                     }
                 });
             }
         }
+
 
         public async Task<RequestResult<int>> DeleteOrderItemAsync(DeleteOrderItemRequest request, CancellationToken cancellationToken)
         {

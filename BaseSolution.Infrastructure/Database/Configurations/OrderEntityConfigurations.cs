@@ -17,13 +17,13 @@ namespace BaseSolution.Infrastructure.Database.Configurations
             builder.HasKey(o => o.Id);
             builder.Property(o => o.Id).ValueGeneratedOnAdd();
 
-  
             builder.HasMany(o => o.OrderItems)
                    .WithOne(oi => oi.Order)
-                   .HasForeignKey(oi => oi.OrderId);
+                   .HasForeignKey(oi => oi.OrderId)
+                   .OnDelete(DeleteBehavior.Cascade); 
 
             builder.Property(o => o.TotalAmount).HasColumnType("decimal(18, 2)");
-
         }
     }
+
 }
