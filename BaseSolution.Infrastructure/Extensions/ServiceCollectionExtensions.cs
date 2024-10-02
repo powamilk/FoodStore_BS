@@ -91,15 +91,15 @@ namespace BaseSolution.Infrastructure.Extensions
             services.AddTransient<OrderListWithPaginationViewModel>();
             services.AddTransient<OrderViewModel>();
 
-            services.AddTransient<IValidator<CategoryCreateRequest>, CategoryCreateRequestValidator>();
-            services.AddTransient<IValidator<CategoryUpdateRequest>, CategoryUpdateRequestValidator>();
-            services.AddTransient<IValidator<CategoryDeleteRequest>, CategoryDeleteRequestValidator>();
-            services.AddTransient<IValidator<CreateOrderRequest>, CreateOrderRequestValidator>();
-            services.AddTransient<IValidator<UpdateOrderRequest>, UpdateOrderRequestValidator>();
-            services.AddTransient<IValidator<DeleteOrderRequest>, DeleteOrderRequestValidator>();
-            services.AddTransient<IValidator<ProductCreateRequest>, ProductCreateRequestValidator>();
-            services.AddTransient<IValidator<ProductUpdateRequest>, ProductUpdateRequestValidator>();
-            services.AddTransient<IValidator<ProductDeleteRequest>, ProductDeleteRequestValidator>();
+            //services.AddTransient<IValidator<CategoryCreateRequest>, CategoryCreateRequestValidator>();
+            //services.AddTransient<IValidator<CategoryUpdateRequest>, CategoryUpdateRequestValidator>();
+            //services.AddTransient<IValidator<CategoryDeleteRequest>, CategoryDeleteRequestValidator>();
+            //services.AddTransient<IValidator<CreateOrderRequest>, CreateOrderRequestValidator>();
+            //services.AddTransient<IValidator<UpdateOrderRequest>, UpdateOrderRequestValidator>();
+            //services.AddTransient<IValidator<DeleteOrderRequest>, DeleteOrderRequestValidator>();
+            //services.AddTransient<IValidator<ProductCreateRequest>, ProductCreateRequestValidator>();
+            //services.AddTransient<IValidator<ProductUpdateRequest>, ProductUpdateRequestValidator>();
+            //services.AddTransient<IValidator<ProductDeleteRequest>, ProductDeleteRequestValidator>();
 
             return services;
         }
